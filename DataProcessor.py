@@ -1,3 +1,5 @@
+import PeakAnalysis
+
 def load_data():
 
     f = open('data/data.csv')
@@ -26,3 +28,6 @@ def load_data():
 
 if __name__ == '__main__':
     inflation, unemployment = load_data()
+    # why not use mark real peaks, remove ambiguous peaks?
+    mod_inf, peak_inf = PeakAnalysis.find_peak(inflation, 0.6)
+    mod_une, peak_une = PeakAnalysis.find_peak(unemployment, 0.7)
