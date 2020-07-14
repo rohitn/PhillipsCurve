@@ -43,6 +43,35 @@ def match_peaks(inf, peak_inf, une, peak_une):
         matched.append((peak_inf[j], peak_une[i]))
         j += 1
     return matched
+
+# peaks: list of integers --> each element indicates the position of peak in data
+# peak 사이 diff 를 num slices 20 만큼으로 나눠서 그 step 만큼 data 를 가지고 interpolate
+
+def interpolate_peaks(data, peaks: list, num_slices=20):
+    new_data = []
+    for curr_idx in range(len(peaks) - 1):
+        next_idx = curr_idx + 1
+
+        curr_peak = peaks[curr_idx]
+        next_peak = peaks[next_idx]
+
+        step = (next_peak - curr_peak) / num_slices
+        for s in range(num_slices):
+            pos = curr_peak + s * step
+            smaller = int(pos)
+            if pos == smaller:
+                new_data.append(data[smaller])
+            else:
+                # smaller == pos 인 경우 smaller == larger 이니까 이렇게 else를 larger = smaller + 1 으로
+                larger = smaller + 1
+                slope = data[larger] - data[smaller]
+                new_data.append(data[smaller] + slope * (pos - smaller))
+
+    new_data.append(data[peaks[-1]])
+    return new_data
+
+
+
 if __name__ == '__main__':
     inflation, unemployment = load_data()
     # why not use mark real peaks, remove ambiguous peaks?
@@ -50,3 +79,13 @@ if __name__ == '__main__':
     mod_une, peak_une = PeakAnalysis.find_peak(unemployment, 0.7)
 
     matched = match_peaks(mod_inf, peak_inf, mod_une, peak_une)
+
+    interpolated_inf = interpolate_peaks(mod_inf, list(map(lambda t: t[0], matched)))
+    interpolated_une = interpolate_peaks(mod_une, list(map(lambda t: t[1], matched)))
+
+    assert(len(interpolated_inf) == len(interpolated_une))
+
+    # with EXPRESSION as NAME:
+    with open('interpolated_data.csv', 'w') as f:
+        for idx in range(len(interpolated_inf)):
+            f.write(str(interpolated_inf[idx]) + ',' + str(interpolated_une[idx]) + '\n')
