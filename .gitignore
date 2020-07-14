@@ -139,3 +139,6 @@ cython_debug/
 
 # PyCharm .idea
 .idea
+
+# ignore MacOS folder file
+.DS_Store
