@@ -1,3 +1,14 @@
+def _remove_duplicate_peak(real_list):
+    for i in range(len(real_list)):
+        if real_list[i] == 0:
+            continue
+        else:
+            # 다음 1이 같은 parity면 자기 자신을 제거
+            for j in range(i + 1, len(real_list)):
+                if real_list[j] == 1:
+                    if i % 2 == j % 2:
+                        real_list[i] = 0
+                    break
 def _remove_ambiguous_peak(real_list, peak_list, data):
     i = 0
     while i < len(real_list):
