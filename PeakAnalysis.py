@@ -1,3 +1,50 @@
+def find_peak(data, cutoff):
+    slope = None
+    peak_value = None
+    peak_diff_list = []
+    for i, v in enumerate(data):
+        if i == 0:
+            peak_value = v
+            continue
+        new_slope = v - data[i - 1]
+        if slope is None:
+            slope = new_slope
+        else:
+            if slope * new_slope < 0:
+                diff = data[i - 1] - peak_value
+                peak_diff_list.append((diff, i - 1))
+                peak_value = data[i - 1]
+                slope = new_slope
+
+    selected = []
+    modified = data.copy()
+
+    real_peak = _mark_real_peaks_v2(peak_diff_list, cutoff)
+    _remove_ambiguous_peak(real_peak, peak_diff_list, data)
+
+    for i, t in enumerate(peak_diff_list):
+        if i < len(peak_diff_list) - 1:
+            if real_peak[i] == 1:
+                if real_peak[i + 1] == 1:
+                    continue
+                else:
+                    for j in range(i + 1, len(peak_diff_list)):
+                        if real_peak[j] == 1:
+                            idx = t[1]
+                            next_idx = peak_diff_list[j][1]
+                            slope = (modified[next_idx] - modified[idx]) / (next_idx - idx)
+                            for k in range(idx, next_idx):
+                                modified[k] = modified[idx] + (k - idx) * slope
+                            break
+  
+    _remove_duplicate_peak(real_peak)
+    for i, rp in enumerate(real_peak):
+        if rp == 1:
+            selected.append(peak_diff_list[i][1])
+
+    return modified, selected
+
+
 def _remove_duplicate_peak(real_list):
     for i in range(len(real_list)):
         if real_list[i] == 0:
